@@ -173,7 +173,7 @@ Players.PlayerRemoving:Connect(updatePlayerList)
 
 runButton.MouseButton1Click:Connect(function()
 	if selectedPlayer and executeCommand then
-		local commands = {"ragdoll","rocket","inverse","balloon","morph","jumpscare","nightvision","tiny"}
+		local commands = {"ragdoll","rocket","inverse","balloon","morph","jumpscare","tiny"}
 		for _, cmd in ipairs(commands) do
 			executeCommand:FireServer(selectedPlayer, cmd)
 		end
