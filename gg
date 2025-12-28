@@ -149,7 +149,7 @@ local function updatePlayerList()
 			-- Обновляем цвет всех кнопок
 			for p, btn in pairs(buttonMap) do
 				if p == selectedPlayer then
-					btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+					btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 				else
 					btn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 				end
