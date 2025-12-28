@@ -173,9 +173,10 @@ Players.PlayerRemoving:Connect(updatePlayerList)
 
 runButton.MouseButton1Click:Connect(function()
 	if selectedPlayer and executeCommand then
-		local commands = {"ragdoll","inverse","balloon","morph","jumpscare","nightvision","tiny"}
+		local commands = {"rocket","inverse","balloon","morph","jumpscare","nightvision","ragdoll","tiny"}
 		for _, cmd in ipairs(commands) do
 			executeCommand:FireServer(selectedPlayer, cmd)
+          task.wait(0.09)
 		end
 		executeCommand:FireServer(selectedPlayer, "rocket")
 		executeCommand:FireServer(selectedPlayer, "jail")
