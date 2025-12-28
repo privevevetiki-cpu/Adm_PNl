@@ -27,7 +27,7 @@ local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 40)
 title.Position = UDim2.new(0, 0, 0, 0)
 title.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-title.Text = "Target GUI"
+title.Text = "versia obnovlena"
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.Font = Enum.Font.SourceSansBold
 title.TextSize = 20
@@ -149,7 +149,7 @@ local function updatePlayerList()
 			-- Обновляем цвет всех кнопок
 			for p, btn in pairs(buttonMap) do
 				if p == selectedPlayer then
-					btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+					btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
 				else
 					btn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 				end
@@ -173,10 +173,12 @@ Players.PlayerRemoving:Connect(updatePlayerList)
 
 runButton.MouseButton1Click:Connect(function()
 	if selectedPlayer and executeCommand then
-		local commands = {"ragdoll","rocket","inverse","balloon","morph","jumpscare","tiny"}
+		local commands = {"ragdoll","inverse","balloon","morph","jumpscare","nightvision","tiny"}
 		for _, cmd in ipairs(commands) do
 			executeCommand:FireServer(selectedPlayer, cmd)
 		end
+		executeCommand:FireServer(selectedPlayer, "rocket")
+		executeCommand:FireServer(selectedPlayer, "jail")
 		print("Команды выполнены на игроке:", selectedPlayer.Name)
 	else
 		warn("Не выбран игрок или нет executeCommand")
