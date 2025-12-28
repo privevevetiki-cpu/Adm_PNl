@@ -1,0 +1,184 @@
+local Players = game:GetService("Players")
+local localPlayer = Players.LocalPlayer
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local executeCommand = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("Net"):WaitForChild("RE/AdminPanelService/ExecuteCommand")
+
+-- Создаём ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "TargetGUI"
+screenGui.Parent = localPlayer:WaitForChild("PlayerGui")
+
+-- Основной фрейм (красивый, с закруглениями)
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 300, 0, 400)
+mainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
+mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+mainFrame.BorderSizePixel = 0
+mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+mainFrame.Parent = screenGui
+
+local uicorner = Instance.new("UICorner")
+uicorner.CornerRadius = UDim.new(0, 10)
+uicorner.Parent = mainFrame
+
+-- Заголовок (для draggable)
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+title.Text = "Target GUI"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 20
+title.Parent = mainFrame
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 10)
+titleCorner.Parent = title
+
+-- Draggable функция
+local dragging = false
+local dragInput, mousePos, framePos
+
+title.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		mousePos = input.Position
+		framePos = mainFrame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+title.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - mousePos
+		mainFrame.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+	end
+end)
+
+-- Список игроков
+local playerList = Instance.new("ScrollingFrame")
+playerList.Size = UDim2.new(1, -20, 0.7, -60)
+playerList.Position = UDim2.new(0, 10, 0, 50)
+playerList.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+playerList.BorderSizePixel = 0
+playerList.Parent = mainFrame
+
+local listCorner = Instance.new("UICorner")
+listCorner.CornerRadius = UDim.new(0, 10)
+listCorner.Parent = playerList
+
+local grid = Instance.new("UIListLayout")
+grid.Padding = UDim.new(0, 5)
+grid.Parent = playerList
+
+-- Кнопка запуска
+local runButton = Instance.new("TextButton")
+runButton.Size = UDim2.new(1, -20, 0, 50)
+runButton.Position = UDim2.new(0, 10, 0.75, 0)
+runButton.Text = "Запустить ВСЕ (почти) функции"
+runButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+runButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+runButton.Font = Enum.Font.SourceSansBold
+runButton.TextSize = 18
+runButton.Parent = mainFrame
+
+local runCorner = Instance.new("UICorner")
+runCorner.CornerRadius = UDim.new(0, 10)
+runCorner.Parent = runButton
+
+-- Выбранный игрок
+local selectedPlayer = nil
+local buttonMap = {} -- для отслеживания кнопок
+
+local function updatePlayerList()
+	-- Очищаем старые кнопки
+	for _, child in ipairs(playerList:GetChildren()) do
+		if child:IsA("Frame") then
+			child:Destroy()
+		end
+	end
+	buttonMap = {}
+
+	for _, player in pairs(Players:GetPlayers()) do
+		-- Фрейм для кнопки + ник
+		local frame = Instance.new("Frame")
+		frame.Size = UDim2.new(1, -10, 0, 30)
+		frame.BackgroundTransparency = 1
+		frame.Parent = playerList
+
+		local button = Instance.new("TextButton")
+		button.Size = UDim2.new(0.6, 0, 1, 0)
+		button.Position = UDim2.new(0, 0, 0, 0)
+		button.Text = "@"..player.DisplayName.."("..player.Name..")"
+		button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+		button.TextColor3 = Color3.fromRGB(255, 255, 255)
+		button.Font = Enum.Font.SourceSans
+		button.TextSize = 16
+		button.Parent = frame
+
+		local btnCorner = Instance.new("UICorner")
+		btnCorner.CornerRadius = UDim.new(0, 5)
+		btnCorner.Parent = button
+
+		local label = Instance.new("TextLabel")
+		label.Size = UDim2.new(0.35, 0, 1, 0)
+		label.Position = UDim2.new(0.62, 0, 0, 0)
+		label.BackgroundTransparency = 1
+		label.TextColor3 = Color3.fromRGB(200, 200, 200)
+		label.Text = ""
+		label.Font = Enum.Font.SourceSans
+		label.TextSize = 14
+		label.TextXAlignment = Enum.TextXAlignment.Left
+		label.Parent = frame
+
+		button.MouseButton1Click:Connect(function()
+			selectedPlayer = player
+			-- Обновляем цвет всех кнопок
+			for p, btn in pairs(buttonMap) do
+				if p == selectedPlayer then
+					btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+				else
+					btn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+				end
+			end
+			print("Выбран игрок:", player.Name)
+		end)
+
+		buttonMap[player] = button
+	end
+
+	-- Обновляем CanvasSize
+	local layout = playerList:FindFirstChildOfClass("UIListLayout")
+	if layout then
+		playerList.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+	end
+end
+
+updatePlayerList()
+Players.PlayerAdded:Connect(updatePlayerList)
+Players.PlayerRemoving:Connect(updatePlayerList)
+
+runButton.MouseButton1Click:Connect(function()
+	if selectedPlayer and executeCommand then
+		local commands = {"ragdoll","rocket","inverse","balloon","morph","jumpscare","nightvision","tiny"}
+		for _, cmd in ipairs(commands) do
+			executeCommand:FireServer(selectedPlayer, cmd)
+		end
+		print("Команды выполнены на игроке:", selectedPlayer.Name)
+	else
+		warn("Не выбран игрок или нет executeCommand")
+	end
+end)
