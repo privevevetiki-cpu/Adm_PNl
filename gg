@@ -178,8 +178,6 @@ runButton.MouseButton1Click:Connect(function()
 			executeCommand:FireServer(selectedPlayer, cmd)
           task.wait(0.09)
 		end
-		executeCommand:FireServer(selectedPlayer, "rocket")
-		executeCommand:FireServer(selectedPlayer, "jail")
 		print("Команды выполнены на игроке:", selectedPlayer.Name)
 	else
 		warn("Не выбран игрок или нет executeCommand")
